@@ -22,7 +22,7 @@ function varargout = roulette_strategy(varargin)
 
 % Edit the above text to modify the response to help roulette_strategy
 
-% Last Modified by GUIDE v2.5 06-Apr-2017 09:30:07
+% Last Modified by GUIDE v2.5 06-Apr-2017 01:08:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -179,8 +179,6 @@ investment = str2double (get (handles.InvVal, 'String'));
 
 play_round = str2double (get (handles.ExpVal, 'String'));
 
-factor = str2double (get (handles.BFVal, 'String'));
-
 if get(handles.rOdd, 'Value') == 1 
     prob = 18;
 elseif get(handles.rEven, 'Value') == 1 
@@ -222,6 +220,7 @@ end
 
 bet = min_bet;
 profit = zeros(1,10000);
+factor = 2;
 
 for j = 1:10000
     deposit = investment;
@@ -231,7 +230,7 @@ for j = 1:10000
         if n > prob
             deposit = deposit - bet;
             bet = factor * bet;
-            if bet > max_bet || bet > deposit
+            if bet > max_bet
                 bet = min_bet;
             end
         else
@@ -242,10 +241,6 @@ for j = 1:10000
     end
     profit(j) = deposit - investment;
 end
-
-%assignin ('base', 'profit', profit);
-bankruptcy_rate = sum (profit <= -investment) / length (profit) * 100;
-
 
 m = mean(profit);
 s = std(profit);
@@ -258,7 +253,6 @@ VH99 = m + 3 * s;
 
 set (handles.MeanValue, 'String', m);
 set (handles.StdValue, 'String', s);
-set (handles.BRR, 'String', bankruptcy_rate);
 set (handles.Val95, 'String', ['('  num2str(VL95) '   ,   ' num2str(VH95) ')']);
 set (handles.Val99, 'String', ['('  num2str(VL99) '   ,   ' num2str(VH99) ')']);
 
@@ -273,26 +267,3 @@ function ExitCom_Callback(hObject, eventdata, handles)
 clc;
 evalin ('base', 'clear all');
 delete (handles.figure1);
-
-
-
-function BFVal_Callback(hObject, eventdata, handles)
-% hObject    handle to BFVal (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of BFVal as text
-%        str2double(get(hObject,'String')) returns contents of BFVal as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function BFVal_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to BFVal (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
